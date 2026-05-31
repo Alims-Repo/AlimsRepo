@@ -11,4 +11,7 @@ sealed class AppScreens : NavKey {
 
     @Serializable
     data object Main : AppScreens()
+
+    @Serializable
+    data class LibraryDetail(val libraryId: String) : AppScreens()
 }

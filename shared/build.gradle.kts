@@ -7,7 +7,7 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinSerialization)
 
-    id("io.github.alims-repo.navease") version "0.0.8"
+    id("io.github.alims-repo.navease") version "0.0.9"
 }
 
 kotlin {

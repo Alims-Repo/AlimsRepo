@@ -12,5 +12,7 @@ data class Library(
     val accentColor: Color,
     val githubUrl: String,
     val mavenUrl: String,
-    val stars: Int? = null
+    val stars: Int? = null,
+    val features: List<String> = emptyList(),
+    val category: String = "Library"
 )

@@ -1,5 +1,9 @@
+@file:OptIn(ExperimentalSharedTransitionApi::class)
+
 package com.alim.alimsrepo.features.main.presentation
 
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -48,6 +52,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import com.alim.alimsrepo.app.AppScreens
 import com.alim.alimsrepo.core.data.allLibraries
 import com.alim.alimsrepo.core.domain.model.Library
@@ -62,6 +67,7 @@ import com.alim.alimsrepo.core.ui.theme.TextSecondary
 import io.github.alimsrepo.navease.runtime.annotations.AutoRegister
 import io.github.alimsrepo.navease.runtime.navigation.NavController
 import io.github.alimsrepo.navease.runtime.presentation.ActivityScreen
+import io.github.alimsrepo.navease.runtime.presentation.LocalNavEaseSharedTransitionScope
 import kotlinx.coroutines.delay
 
 @AutoRegister
@@ -109,7 +115,9 @@ class MainScreen : ActivityScreen<AppScreens.Main>() {
                     ) {
                         LibraryCard(
                             library = library,
-                            onClick = {}
+                            onClick = {
+                                navController.navigate(AppScreens.LibraryDetail(libraryId = library.id))
+                            }
                         )
                     }
                 }
@@ -235,8 +243,23 @@ class MainScreen : ActivityScreen<AppScreens.Main>() {
         library: Library,
         onClick: () -> Unit
     ) {
+        val sharedScope = LocalNavEaseSharedTransitionScope.current
+        val animatedScope = LocalNavAnimatedContentScope.current
+
+        // Shared bounds — card morphs into the hero card on LibraryDetailScreen
+        val sharedModifier = if (sharedScope != null && animatedScope != null) {
+            with(sharedScope) {
+                Modifier.sharedBounds(
+                    sharedContentState = rememberSharedContentState(key = "lib_card_${library.id}"),
+                    animatedVisibilityScope = animatedScope,
+                    resizeMode = SharedTransitionScope.ResizeMode.RemeasureToBounds,
+                    placeholderSize = SharedTransitionScope.PlaceholderSize.AnimatedSize,
+                )
+            }
+        } else Modifier
+
         Card(
-            modifier = Modifier
+            modifier = sharedModifier
                 .fillMaxWidth()
                 .clickable(onClick = onClick)
                 .border(
