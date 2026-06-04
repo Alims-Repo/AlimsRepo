@@ -1,16 +1,17 @@
 package com.alim.alimsrepo.app
 
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.tooling.preview.Preview
-import io.github.alimsrepo.navease.generated.NavEaseHost
-import io.github.alimsrepo.navease.runtime.presentation.NavTransition
+import com.alim.alimsrepo.core.ui.theme.AlimsRepoTheme
+import io.github.alimsrepo.navease.runtime.host.NavEaseHost
+import io.github.alimsrepo.navease.runtime.transition.NavTransition
 
 @Composable
 @Preview
 fun App() {
-    MaterialTheme {
-        NavEaseHost(   // ← generated overload, zero arguments needed
+    AlimsRepoTheme {
+        NavEaseHost<AppScreens>(
+            start = AppScreens.Splash,
             onExitRequest = { /* show exit dialog or finish() */ },
             enableSharedTransitions = true,
             navTransition = NavTransition.Push,

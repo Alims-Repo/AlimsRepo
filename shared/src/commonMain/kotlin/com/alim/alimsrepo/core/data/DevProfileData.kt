@@ -5,7 +5,7 @@ import androidx.compose.ui.graphics.Color
 // ─── Developer Profile ────────────────────────────────────────────────────────
 
 object DevProfile {
-    const val name = "Alim"
+    const val name = "Abdul Alim"
     const val title = "Android & KMP Developer"
     const val tagline = "Building performant apps & open-source libraries for the Kotlin ecosystem"
     const val bio =
@@ -26,8 +26,8 @@ data class ProfileStat(val value: String, val label: String, val sublabel: Strin
 
 val profileStats = listOf(
     ProfileStat("6", "Libraries", "Maven Central"),
-    ProfileStat("3+", "Apps", "Google Play"),
-    ProfileStat("17K+", "Downloads", "Combined"),
+    ProfileStat("3", "Apps", "Google Play"),
+    ProfileStat("15K+", "Downloads", "Combined"),
     ProfileStat("64+", "Stars", "GitHub")
 )
 
@@ -210,82 +210,83 @@ data class PublishedApp(
 
 val publishedApps = listOf(
     PublishedApp(
-        name = "Azan Times",
-        tagline = "Prayer times, azan alerts & Qibla compass",
-        description = "A full-featured Islamic companion for Muslims worldwide. Precise prayer times for " +
-            "200+ countries, customisable azan sounds, live Qibla direction, and a Hijri calendar — all " +
-            "in one elegant, completely ad-free app.",
-        category = "Islamic",
+        name = "Salamly: Muslim Companion",
+        tagline = "Azan, Quran, Qibla & Muslim Lifestyle",
+        description = "A complete, all-in-one Islamic assistant designed to be distraction-free. " +
+            "Precise prayer times for any location, customizable azan notifications, " +
+            "high-quality Quran reader with offline audio, and an accurate Qibla compass. " +
+            "Includes daily routine tools like morning/evening Duas and a habit tracker.",
+        category = "Lifestyle",
         iconEmoji = "🕌",
         accentColor = Color(0xFF3FB950),
-        playStoreUrl = "https://play.google.com/store/apps",
+        playStoreUrl = "https://play.google.com/store/apps/details?id=com.nelucode.salamly",
         downloads = "10K+",
-        rating = "4.7",
-        ratingCount = "284 ratings",
-        version = "2.3.1",
-        lastUpdated = "March 2026",
-        size = "12.4 MB",
+        rating = "5.0",
+        ratingCount = "40+ ratings",
+        version = "1.3.99",
+        lastUpdated = "May 2026",
+        size = "45 MB",
         minAndroid = "Android 7.0+",
         features = listOf(
-            "Prayer times for 200+ countries",
-            "15+ azan sounds, offline playback",
-            "Live Qibla compass + degree reading",
-            "Hijri calendar with Islamic events",
-            "Home screen widget support",
-            "Zero ads · completely free"
+            "Precise prayer times & Adhan alerts",
+            "Quran with 20+ translations & Tafsir",
+            "Offline MP3 audio recitations",
+            "Accurate Qibla finder for travelers",
+            "Daily Duas & religious habit tracker",
+            "Zero ads · Completely private"
         ),
         isTopChart = true
     ),
     PublishedApp(
-        name = "Quran Reader",
-        tagline = "Complete Quran with audio recitations",
-        description = "A beautifully crafted Quran app designed for distraction-free reading. Crystal-clear " +
-            "Arabic typography, 6 translations, and 15 recitation styles from world-renowned reciters — " +
-            "all with full offline support.",
-        category = "Islamic",
+        name = "Al Quran: Offline Audio",
+        tagline = "Read and listen to Quran with Tafsir",
+        description = "A comprehensive Quran companion for reading, listening, and understanding. " +
+            "Features high-quality Arabic Mushaf script, word-by-word meanings, and offline audio " +
+            "recitations from world-renowned Qaris. Perfect for beginners and advanced students.",
+        category = "Books & Reference",
         iconEmoji = "📖",
         accentColor = Color(0xFF58A6FF),
-        playStoreUrl = "https://play.google.com/store/apps",
-        downloads = "5K+",
+        playStoreUrl = "https://play.google.com/store/apps/details?id=com.nelucode.alquran",
+        downloads = "1K+",
         rating = "4.8",
-        ratingCount = "147 ratings",
-        version = "1.5.0",
+        ratingCount = "Recent reviews",
+        version = "1.0.30",
         lastUpdated = "April 2026",
-        size = "28.7 MB",
+        size = "35 MB",
         minAndroid = "Android 7.0+",
         features = listOf(
-            "Complete Quran with 6 translations",
-            "15 reciters with offline audio",
-            "Offline reading & audio support",
-            "Tafsir (commentary) included",
-            "Night mode for comfortable reading",
-            "Bookmarks & verse highlighting"
+            "High-quality Arabic Mushaf script",
+            "Offline audio from 5+ top Qaris",
+            "Word-by-word meaning & Tafsir",
+            "Translations in 10+ languages",
+            "Night mode & customizable fonts",
+            "Bookmarks & personal notes"
         )
     ),
     PublishedApp(
-        name = "PDF Maker",
-        tagline = "Create professional PDFs on your phone",
-        description = "Turn your content into polished PDF documents in seconds — no PC required. Write " +
-            "text, build tables, insert images, and export anywhere. Built for invoices, business " +
-            "reports, and study notes.",
+        name = "Habitly: Habit Tracker",
+        tagline = "Build routines and achieve your goals",
+        description = "A minimalist yet powerful habit tracker that helps you transform vague intentions " +
+            "into unbreakable daily routines. Focuses on behavioral psychology with streaks, " +
+            "visual analytics, and 30-day challenges to keep you consistent and motivated.",
         category = "Productivity",
-        iconEmoji = "📄",
+        iconEmoji = "✅",
         accentColor = Color(0xFFFFA657),
-        playStoreUrl = "https://play.google.com/store/apps",
-        downloads = "2K+",
-        rating = "4.5",
-        ratingCount = "63 ratings",
-        version = "1.2.0",
-        lastUpdated = "January 2026",
-        size = "6.8 MB",
+        playStoreUrl = "https://play.google.com/store/apps/details?id=com.nelucode.habitly",
+        downloads = "100+",
+        rating = "New",
+        ratingCount = "Early access",
+        version = "1.1.0",
+        lastUpdated = "May 2026",
+        size = "15 MB",
         minAndroid = "Android 8.0+",
         features = listOf(
-            "Text, tables & image support",
-            "10+ professional document templates",
-            "Share to any app in one tap",
-            "Password-protect your documents",
-            "A4, Letter & Legal page sizes",
-            "Batch multi-document export"
+            "Unlimited habits & custom schedules",
+            "Visual progress charts & analytics",
+            "Streaks & milestone rewards",
+            "30-day focused goal challenges",
+            "Morning & evening routine planner",
+            "100% private · Local data storage"
         )
     )
 )

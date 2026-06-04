@@ -1,10 +1,10 @@
 package com.alim.alimsrepo.app
 
-import androidx.navigation3.runtime.NavKey
+import io.github.alimsrepo.navease.runtime.NavEaseRoot
 import kotlinx.serialization.Serializable
 
 @Serializable
-sealed class AppScreens : NavKey {
+sealed class AppScreens : NavEaseRoot {
 
     @Serializable
     data object Splash : AppScreens()

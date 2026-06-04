@@ -2,8 +2,13 @@
 
 package com.alim.alimsrepo.features.detail.presentation
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -34,6 +39,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,20 +54,26 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import com.alim.alimsrepo.app.AppScreens
 import com.alim.alimsrepo.core.data.libraryById
 import com.alim.alimsrepo.core.domain.model.Library
 import com.alim.alimsrepo.core.ui.theme.AccentCyan
+import com.alim.alimsrepo.core.ui.theme.AccentGreen
+import com.alim.alimsrepo.core.ui.theme.AccentOrange
+import com.alim.alimsrepo.core.ui.theme.AccentPurple
+import com.alim.alimsrepo.core.ui.theme.AccentRed
+import com.alim.alimsrepo.core.ui.theme.ChipShape
 import com.alim.alimsrepo.core.ui.theme.DarkBackground
 import com.alim.alimsrepo.core.ui.theme.DarkSurface
 import com.alim.alimsrepo.core.ui.theme.DarkSurfaceVariant
 import com.alim.alimsrepo.core.ui.theme.TextPrimary
 import com.alim.alimsrepo.core.ui.theme.TextSecondary
+import io.github.alimsrepo.navease.internal.navigation.ui.LocalNavAnimatedContentScope
 import io.github.alimsrepo.navease.runtime.annotations.AutoRegister
-import io.github.alimsrepo.navease.runtime.navigation.NavController
-import io.github.alimsrepo.navease.runtime.presentation.ActivityScreen
+import io.github.alimsrepo.navease.runtime.navigation.NavEaseController
 import io.github.alimsrepo.navease.runtime.presentation.LocalNavEaseSharedTransitionScope
+import io.github.alimsrepo.navease.runtime.screen.ActivityScreen
+import kotlinx.coroutines.delay
 
 @AutoRegister
 class LibraryDetailScreen : ActivityScreen<AppScreens.LibraryDetail>() {
@@ -66,7 +82,7 @@ class LibraryDetailScreen : ActivityScreen<AppScreens.LibraryDetail>() {
     @Composable
     override fun Content(
         navKey: AppScreens.LibraryDetail,
-        navController: NavController
+        navEaseController: NavEaseController
     ) {
         val library = libraryById(navKey.libraryId) ?: run {
             Text("Library not found", color = TextPrimary)
@@ -88,178 +104,320 @@ class LibraryDetailScreen : ActivityScreen<AppScreens.LibraryDetail>() {
             }
         } else Modifier
 
+        // Content entrance animation (after shared element settles)
+        var contentVisible by remember { mutableStateOf(false) }
+        LaunchedEffect(Unit) {
+            delay(250)
+            contentVisible = true
+        }
+
         Scaffold(
             topBar = {
                 DetailTopBar(
                     library = library,
-                    onBack = { navController.back() }
+                    onBack = { navEaseController.back() }
                 )
             },
             containerColor = DarkBackground
         ) { padding ->
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                // ── Hero card (shared bounds with MainScreen card) ────────────
-                item {
-                    HeroCard(library = library, modifier = heroSharedModifier)
-                }
-
-                // ── About ─────────────────────────────────────────────────────
-                item {
-                    SectionCard(title = "ABOUT", accent = library.accentColor) {
-                        Text(
-                            text = library.description,
-                            color = TextSecondary,
-                            fontSize = 14.sp,
-                            lineHeight = 22.sp
+            Box(Modifier.fillMaxSize()) {
+                // Ambient gradient background behind hero
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .height(300.dp)
+                        .background(
+                            Brush.verticalGradient(
+                                listOf(
+                                    library.accentColor.copy(0.08f),
+                                    DarkBackground
+                                )
+                            )
                         )
-                    }
-                }
+                )
 
-                // ── Features ──────────────────────────────────────────────────
-                if (library.features.isNotEmpty()) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    // ── Hero card (shared bounds with MainScreen card) ────────
                     item {
-                        SectionCard(title = "FEATURES", accent = library.accentColor) {
-                            library.features.forEachIndexed { index, feature ->
-                                if (index > 0) Spacer(Modifier.height(10.dp))
-                                Row(
-                                    verticalAlignment = Alignment.Top,
-                                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        HeroCard(library = library, modifier = heroSharedModifier)
+                    }
+
+                    // ── About ─────────────────────────────────────────────────
+                    item {
+                        AnimatedVisibility(
+                            visible = contentVisible,
+                            enter = fadeIn(tween(400)) + slideInVertically(
+                                initialOffsetY = { it / 4 },
+                                animationSpec = tween(500)
+                            )
+                        ) {
+                            SectionCard(
+                                title = "ABOUT",
+                                accent = library.accentColor
+                            ) {
+                                Text(
+                                    text = library.description,
+                                    color = TextSecondary,
+                                    fontSize = 14.sp,
+                                    lineHeight = 22.sp
+                                )
+                            }
+                        }
+                    }
+
+                    // ── Features ──────────────────────────────────────────────
+                    if (library.features.isNotEmpty()) {
+                        item {
+                            AnimatedVisibility(
+                                visible = contentVisible,
+                                enter = fadeIn(tween(400, delayMillis = 80)) + slideInVertically(
+                                    initialOffsetY = { it / 4 },
+                                    animationSpec = tween(500, delayMillis = 80)
+                                )
+                            ) {
+                                SectionCard(
+                                    title = "FEATURES",
+                                    accent = library.accentColor
                                 ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(20.dp)
-                                            .clip(CircleShape)
-                                            .background(library.accentColor.copy(alpha = 0.15f)),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(
-                                            text = "✓",
-                                            color = library.accentColor,
-                                            fontSize = 11.sp,
-                                            fontWeight = FontWeight.Bold
-                                        )
+                                    library.features.forEachIndexed { index, feature ->
+                                        if (index > 0) Spacer(Modifier.height(10.dp))
+                                        Row(
+                                            verticalAlignment = Alignment.Top,
+                                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                                        ) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(20.dp)
+                                                    .clip(CircleShape)
+                                                    .background(
+                                                        Brush.linearGradient(
+                                                            listOf(
+                                                                library.accentColor.copy(0.2f),
+                                                                library.accentColor.copy(0.1f)
+                                                            )
+                                                        )
+                                                    ),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                Text(
+                                                    text = "✓",
+                                                    color = library.accentColor,
+                                                    fontSize = 11.sp,
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                            }
+                                            Text(
+                                                text = feature,
+                                                color = TextSecondary,
+                                                fontSize = 14.sp,
+                                                lineHeight = 20.sp,
+                                                modifier = Modifier.weight(1f)
+                                            )
+                                        }
                                     }
-                                    Text(
-                                        text = feature,
-                                        color = TextSecondary,
-                                        fontSize = 14.sp,
-                                        lineHeight = 20.sp,
-                                        modifier = Modifier.weight(1f)
-                                    )
                                 }
                             }
                         }
                     }
-                }
 
-                // ── Installation ──────────────────────────────────────────────
-                item {
-                    SectionCard(title = "INSTALLATION — MAVEN CENTRAL", accent = library.accentColor) {
-                        Text(
-                            text = "Add to your Gradle dependencies:",
-                            color = TextSecondary,
-                            fontSize = 13.sp
-                        )
-                        Spacer(Modifier.height(10.dp))
-                        // Gradle KTS snippet
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(DarkBackground)
-                                .border(1.dp, library.accentColor.copy(alpha = 0.2f), RoundedCornerShape(8.dp))
-                                .padding(14.dp)
+                    // ── Installation ──────────────────────────────────────────
+                    item {
+                        AnimatedVisibility(
+                            visible = contentVisible,
+                            enter = fadeIn(tween(400, delayMillis = 160)) + slideInVertically(
+                                initialOffsetY = { it / 4 },
+                                animationSpec = tween(500, delayMillis = 160)
+                            )
                         ) {
-                            Column {
+                            SectionCard(
+                                title = "INSTALLATION — MAVEN CENTRAL",
+                                accent = library.accentColor
+                            ) {
                                 Text(
-                                    text = "// build.gradle.kts",
-                                    color = TextSecondary.copy(alpha = 0.5f),
-                                    fontSize = 11.sp,
-                                    fontFamily = FontFamily.Monospace
+                                    text = "Add to your Gradle dependencies:",
+                                    color = TextSecondary,
+                                    fontSize = 13.sp
                                 )
-                                Spacer(Modifier.height(4.dp))
-                                Text(
-                                    text = "implementation(\"${library.artifact}:${library.version}\")",
-                                    color = library.accentColor,
-                                    fontSize = 12.sp,
-                                    fontFamily = FontFamily.Monospace,
-                                    fontWeight = FontWeight.Medium
-                                )
+                                Spacer(Modifier.height(10.dp))
+                                // Enhanced Gradle KTS snippet
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clip(ChipShape)
+                                        .background(
+                                            Brush.verticalGradient(
+                                                listOf(
+                                                    DarkBackground,
+                                                    Color(0xFF0A0E14)
+                                                )
+                                            )
+                                        )
+                                        .border(
+                                            1.dp,
+                                            library.accentColor.copy(alpha = 0.2f),
+                                            ChipShape
+                                        )
+                                        .padding(14.dp)
+                                ) {
+                                    Column {
+                                        // Gradle KTS label
+                                        Row(
+                                            Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween
+                                        ) {
+                                            // Line number
+                                            Text(
+                                                text = "1",
+                                                color = TextSecondary.copy(0.3f),
+                                                fontSize = 10.sp,
+                                                fontFamily = FontFamily.Monospace
+                                            )
+                                            Box(
+                                                Modifier
+                                                    .clip(RoundedCornerShape(3.dp))
+                                                    .background(
+                                                        library.accentColor.copy(0.1f)
+                                                    )
+                                                    .padding(
+                                                        horizontal = 6.dp,
+                                                        vertical = 1.dp
+                                                    )
+                                            ) {
+                                                Text(
+                                                    "Gradle KTS",
+                                                    color = library.accentColor.copy(0.7f),
+                                                    fontSize = 9.sp,
+                                                    fontWeight = FontWeight.Bold,
+                                                    fontFamily = FontFamily.Monospace
+                                                )
+                                            }
+                                        }
+                                        Spacer(Modifier.height(6.dp))
+                                        // Comment
+                                        Row {
+                                            Text(
+                                                text = "2  ",
+                                                color = TextSecondary.copy(0.3f),
+                                                fontSize = 10.sp,
+                                                fontFamily = FontFamily.Monospace
+                                            )
+                                            Text(
+                                                text = "// build.gradle.kts",
+                                                color = TextSecondary.copy(alpha = 0.4f),
+                                                fontSize = 11.sp,
+                                                fontFamily = FontFamily.Monospace
+                                            )
+                                        }
+                                        Spacer(Modifier.height(4.dp))
+                                        // Implementation line with syntax coloring
+                                        Row {
+                                            Text(
+                                                text = "3  ",
+                                                color = TextSecondary.copy(0.3f),
+                                                fontSize = 10.sp,
+                                                fontFamily = FontFamily.Monospace
+                                            )
+                                            Text(
+                                                text = "implementation",
+                                                color = AccentCyan,
+                                                fontSize = 12.sp,
+                                                fontFamily = FontFamily.Monospace,
+                                                fontWeight = FontWeight.Medium
+                                            )
+                                            Text(
+                                                text = "(\"",
+                                                color = TextSecondary.copy(0.6f),
+                                                fontSize = 12.sp,
+                                                fontFamily = FontFamily.Monospace
+                                            )
+                                            Text(
+                                                text = "${library.artifact}:${library.version}",
+                                                color = AccentGreen,
+                                                fontSize = 12.sp,
+                                                fontFamily = FontFamily.Monospace,
+                                                fontWeight = FontWeight.Medium
+                                            )
+                                            Text(
+                                                text = "\")",
+                                                color = TextSecondary.copy(0.6f),
+                                                fontSize = 12.sp,
+                                                fontFamily = FontFamily.Monospace
+                                            )
+                                        }
+                                    }
+                                }
+                                Spacer(Modifier.height(12.dp))
+                                HorizontalDivider(color = DarkSurfaceVariant)
+                                Spacer(Modifier.height(12.dp))
+                                // Maven artifact info
+                                MavenInfoRow("Group ID", library.artifact.substringBeforeLast(":"), TextPrimary)
+                                Spacer(Modifier.height(6.dp))
+                                MavenInfoRow("Artifact", library.artifact.substringAfterLast(":"), TextPrimary)
+                                Spacer(Modifier.height(6.dp))
+                                MavenInfoRow("Version", library.version, library.accentColor)
                             }
                         }
-                        Spacer(Modifier.height(10.dp))
-                        HorizontalDivider(color = DarkSurfaceVariant)
-                        Spacer(Modifier.height(10.dp))
-                        // Maven artifact info
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
+                    }
+
+                    // ── Links ─────────────────────────────────────────────────
+                    item {
+                        AnimatedVisibility(
+                            visible = contentVisible,
+                            enter = fadeIn(tween(400, delayMillis = 240)) + slideInVertically(
+                                initialOffsetY = { it / 4 },
+                                animationSpec = tween(500, delayMillis = 240)
+                            )
                         ) {
-                            Text(
-                                text = "Group ID  ",
-                                color = TextSecondary,
-                                fontSize = 12.sp
-                            )
-                            Text(
-                                text = library.artifact.substringBeforeLast(":"),
-                                color = TextPrimary,
-                                fontSize = 12.sp,
-                                fontFamily = FontFamily.Monospace
-                            )
-                        }
-                        Spacer(Modifier.height(4.dp))
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "Artifact  ",
-                                color = TextSecondary,
-                                fontSize = 12.sp
-                            )
-                            Text(
-                                text = library.artifact.substringAfterLast(":"),
-                                color = TextPrimary,
-                                fontSize = 12.sp,
-                                fontFamily = FontFamily.Monospace
-                            )
-                        }
-                        Spacer(Modifier.height(4.dp))
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "Version   ",
-                                color = TextSecondary,
-                                fontSize = 12.sp
-                            )
-                            Text(
-                                text = library.version,
-                                color = library.accentColor,
-                                fontSize = 12.sp,
-                                fontFamily = FontFamily.Monospace,
-                                fontWeight = FontWeight.SemiBold
-                            )
+                            LinksCard(library = library)
                         }
                     }
-                }
 
-                // ── Links ─────────────────────────────────────────────────────
-                item {
-                    LinksCard(library = library)
+                    item { Spacer(Modifier.height(8.dp)) }
                 }
-
-                item { Spacer(Modifier.height(8.dp)) }
             }
         }
     }
+}
+
+// ─── Maven Info Row ─────────────────────────────────────────────────────────
+
+@Composable
+private fun MavenInfoRow(label: String, value: String, valueColor: Color) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = label.padEnd(10),
+            color = TextSecondary,
+            fontSize = 12.sp,
+            fontFamily = FontFamily.Monospace
+        )
+        Text(
+            text = value,
+            color = valueColor,
+            fontSize = 12.sp,
+            fontFamily = FontFamily.Monospace,
+            fontWeight = if (valueColor != TextPrimary) FontWeight.SemiBold else FontWeight.Normal
+        )
+    }
+}
+
+// ─── Platform Color Helper ──────────────────────────────────────────────────
+
+private fun platformColor(platform: String): Color = when (platform.lowercase()) {
+    "android" -> AccentGreen
+    "ios" -> AccentCyan
+    "desktop" -> AccentPurple
+    "web" -> AccentOrange
+    "jvm" -> AccentRed
+    else -> AccentCyan
 }
 
 // ─── Hero Card ──────────────────────────────────────────────────────────────
@@ -345,7 +503,7 @@ private fun HeroCard(library: Library, modifier: Modifier = Modifier) {
                 HorizontalDivider(color = DarkSurfaceVariant)
                 Spacer(modifier = Modifier.height(14.dp))
 
-                // Version + platforms
+                // Version + platforms with platform-specific colors
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -354,9 +512,13 @@ private fun HeroCard(library: Library, modifier: Modifier = Modifier) {
                     // Version badge
                     Box(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(8.dp))
+                            .clip(ChipShape)
                             .background(library.accentColor.copy(alpha = 0.15f))
-                            .border(1.dp, library.accentColor.copy(alpha = 0.3f), RoundedCornerShape(8.dp))
+                            .border(
+                                1.dp,
+                                library.accentColor.copy(alpha = 0.3f),
+                                ChipShape
+                            )
                             .padding(horizontal = 10.dp, vertical = 4.dp)
                     ) {
                         Text(
@@ -368,17 +530,19 @@ private fun HeroCard(library: Library, modifier: Modifier = Modifier) {
                         )
                     }
 
-                    // Platform chips
+                    // Platform chips with platform-specific colors
                     library.platforms.forEach { platform ->
+                        val pColor = platformColor(platform)
                         Box(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(6.dp))
-                                .background(DarkSurfaceVariant)
+                                .background(pColor.copy(0.1f))
+                                .border(1.dp, pColor.copy(0.2f), RoundedCornerShape(6.dp))
                                 .padding(horizontal = 8.dp, vertical = 4.dp)
                         ) {
                             Text(
                                 text = platform,
-                                color = TextSecondary,
+                                color = pColor,
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Medium
                             )
@@ -404,26 +568,43 @@ private fun SectionCard(
         colors = CardDefaults.cardColors(containerColor = DarkSurface),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
-        Column(modifier = Modifier.padding(20.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .width(3.dp)
-                        .height(14.dp)
-                        .clip(RoundedCornerShape(2.dp))
-                        .background(accent)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = title,
-                    color = accent,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 1.sp
-                )
+        Column(Modifier.fillMaxWidth()) {
+            // Top accent strip
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .height(2.dp)
+                    .background(
+                        Brush.horizontalGradient(
+                            listOf(
+                                accent.copy(0.5f),
+                                accent.copy(0.15f),
+                                Color.Transparent
+                            )
+                        )
+                    )
+            )
+            Column(modifier = Modifier.padding(20.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .width(3.dp)
+                            .height(14.dp)
+                            .clip(RoundedCornerShape(2.dp))
+                            .background(accent)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = title,
+                        color = accent,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.sp
+                    )
+                }
+                Spacer(modifier = Modifier.height(14.dp))
+                content()
             }
-            Spacer(modifier = Modifier.height(14.dp))
-            content()
         }
     }
 }
@@ -440,84 +621,100 @@ private fun LinksCard(library: Library) {
         colors = CardDefaults.cardColors(containerColor = DarkSurface),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
-        Column(modifier = Modifier.padding(20.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .width(3.dp)
-                        .height(14.dp)
-                        .clip(RoundedCornerShape(2.dp))
-                        .background(library.accentColor)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "LINKS",
-                    color = library.accentColor,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 1.sp
-                )
-            }
-            Spacer(modifier = Modifier.height(14.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                // GitHub button
-                Button(
-                    onClick = { uriHandler.openUri(library.githubUrl) },
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = library.accentColor,
-                        contentColor = Color(0xFF0D1117)
+        Column(Modifier.fillMaxWidth()) {
+            // Top accent strip
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .height(2.dp)
+                    .background(
+                        Brush.horizontalGradient(
+                            listOf(
+                                library.accentColor.copy(0.5f),
+                                library.accentColor.copy(0.15f),
+                                Color.Transparent
+                            )
+                        )
                     )
-                ) {
+            )
+            Column(modifier = Modifier.padding(20.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .width(3.dp)
+                            .height(14.dp)
+                            .clip(RoundedCornerShape(2.dp))
+                            .background(library.accentColor)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "⚙  GitHub",
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(vertical = 2.dp)
-                    )
-                }
-
-                // Maven button
-                OutlinedButton(
-                    onClick = { uriHandler.openUri(library.mavenUrl) },
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp),
-                    border = androidx.compose.foundation.BorderStroke(
-                        1.dp, library.accentColor.copy(alpha = 0.5f)
-                    )
-                ) {
-                    Text(
-                        text = "📦  Maven",
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Medium,
+                        text = "LINKS",
                         color = library.accentColor,
-                        modifier = Modifier.padding(vertical = 2.dp)
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.sp
                     )
                 }
+                Spacer(modifier = Modifier.height(14.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    // GitHub button
+                    Button(
+                        onClick = { uriHandler.openUri(library.githubUrl) },
+                        modifier = Modifier.weight(1f).height(42.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = library.accentColor,
+                            contentColor = Color(0xFF0D1117)
+                        )
+                    ) {
+                        Text(
+                            text = "</> GitHub",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    // Maven button
+                    OutlinedButton(
+                        onClick = { uriHandler.openUri(library.mavenUrl) },
+                        modifier = Modifier.weight(1f).height(42.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        border = BorderStroke(
+                            1.dp,
+                            library.accentColor.copy(alpha = 0.5f)
+                        )
+                    ) {
+                        Text(
+                            text = "◻ Maven",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = library.accentColor
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+                HorizontalDivider(color = DarkSurfaceVariant)
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Text(
+                    text = library.githubUrl,
+                    color = AccentCyan.copy(alpha = 0.6f),
+                    fontSize = 11.sp,
+                    fontFamily = FontFamily.Monospace
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = library.mavenUrl,
+                    color = TextSecondary.copy(alpha = 0.5f),
+                    fontSize = 11.sp,
+                    fontFamily = FontFamily.Monospace
+                )
             }
-
-            Spacer(modifier = Modifier.height(12.dp))
-            HorizontalDivider(color = DarkSurfaceVariant)
-            Spacer(modifier = Modifier.height(10.dp))
-
-            Text(
-                text = library.githubUrl,
-                color = AccentCyan.copy(alpha = 0.6f),
-                fontSize = 11.sp,
-                fontFamily = FontFamily.Monospace
-            )
-            Spacer(modifier = Modifier.height(2.dp))
-            Text(
-                text = library.mavenUrl,
-                color = TextSecondary.copy(alpha = 0.5f),
-                fontSize = 11.sp,
-                fontFamily = FontFamily.Monospace
-            )
         }
     }
 }
@@ -553,16 +750,15 @@ private fun DetailTopBar(library: Library, onBack: () -> Unit) {
                         .size(36.dp)
                         .clip(CircleShape)
                         .background(DarkSurfaceVariant)
-                        .then(
-                            Modifier.clickable(onClick = onBack)
-                        ),
+                        .border(1.dp, DarkSurfaceVariant.copy(0.8f), CircleShape)
+                        .clickable(onClick = onBack),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = "←",
                         color = TextPrimary,
                         fontSize = 18.sp,
-                        fontWeight = FontWeight.Light
+                        fontWeight = FontWeight.Medium
                     )
                 }
             },
@@ -575,7 +771,7 @@ private fun DetailTopBar(library: Library, onBack: () -> Unit) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(1.5.dp)
+                .height(2.dp)
                 .background(
                     Brush.horizontalGradient(
                         listOf(
@@ -588,5 +784,3 @@ private fun DetailTopBar(library: Library, onBack: () -> Unit) {
         )
     }
 }
-
-
