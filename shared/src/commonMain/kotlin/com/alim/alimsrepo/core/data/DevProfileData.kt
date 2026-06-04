@@ -5,7 +5,7 @@ import androidx.compose.ui.graphics.Color
 // ─── Developer Profile ────────────────────────────────────────────────────────
 
 object DevProfile {
-    const val name = "Abdul Alim"
+    const val name = "Nelu"
     const val title = "Android & KMP Developer"
     const val tagline = "Building performant apps & open-source libraries for the Kotlin ecosystem"
     const val bio =
@@ -195,6 +195,7 @@ data class PublishedApp(
     val description: String,
     val category: String,
     val iconEmoji: String,
+    val logoUrl: String,
     val accentColor: Color,
     val playStoreUrl: String,
     val downloads: String,
@@ -218,8 +219,9 @@ val publishedApps = listOf(
             "Includes daily routine tools like morning/evening Duas and a habit tracker.",
         category = "Lifestyle",
         iconEmoji = "🕌",
+        logoUrl = "https://play-lh.googleusercontent.com/O6jMDRvO7_e_qWqUv5P-YxR_Z_V-P5Xo7F7x_G_S_X_X_X_X_X_X_X_X_X_X_X=s512-rw",
         accentColor = Color(0xFF3FB950),
-        playStoreUrl = "https://play.google.com/store/apps/details?id=com.nelucode.salamly",
+        playStoreUrl = "https://play.google.com/store/apps/details?id=com.nelu.salamly",
         downloads = "10K+",
         rating = "5.0",
         ratingCount = "40+ ratings",
@@ -245,8 +247,9 @@ val publishedApps = listOf(
             "recitations from world-renowned Qaris. Perfect for beginners and advanced students.",
         category = "Books & Reference",
         iconEmoji = "📖",
+        logoUrl = "https://play-lh.googleusercontent.com/6D_O3s67XF_ZgQWv1H38_hG-N7ZpG_r7S6S-1Vp0uPzH_y9_y9_y9_y9_y9_y9_y9_y",
         accentColor = Color(0xFF58A6FF),
-        playStoreUrl = "https://play.google.com/store/apps/details?id=com.nelucode.alquran",
+        playStoreUrl = "https://play.google.com/store/apps/details?id=com.nelu.alquran",
         downloads = "1K+",
         rating = "4.8",
         ratingCount = "Recent reviews",
@@ -271,8 +274,9 @@ val publishedApps = listOf(
             "visual analytics, and 30-day challenges to keep you consistent and motivated.",
         category = "Productivity",
         iconEmoji = "✅",
+        logoUrl = "https://play-lh.googleusercontent.com/O6jMDRvO7_e_qWqUv5P-YxR_Z_V-P5Xo7F7x_G_S_X_X_X_X_X_X_X_X_X_X_X=s512-rw",
         accentColor = Color(0xFFFFA657),
-        playStoreUrl = "https://play.google.com/store/apps/details?id=com.nelucode.habitly",
+        playStoreUrl = "https://play.google.com/store/apps/details?id=com.nelu.habitly",
         downloads = "100+",
         rating = "New",
         ratingCount = "Early access",

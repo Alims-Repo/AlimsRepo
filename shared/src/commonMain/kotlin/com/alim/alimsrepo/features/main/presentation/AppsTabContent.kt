@@ -80,8 +80,12 @@ internal fun AppsTabContent(padding: PaddingValues) {
     }
 
     LazyColumn(
-        modifier = Modifier.fillMaxSize().padding(padding),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 20.dp),
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(
+            start = 16.dp, end = 16.dp,
+            top = padding.calculateTopPadding() + 16.dp,
+            bottom = padding.calculateBottomPadding() + 24.dp
+        ),
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
         item {

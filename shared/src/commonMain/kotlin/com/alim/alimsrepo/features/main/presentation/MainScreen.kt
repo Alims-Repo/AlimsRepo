@@ -42,7 +42,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Badge
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -50,8 +49,6 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -114,13 +111,6 @@ class MainScreen : ActivityScreen<AppScreens.Main>() {
         }
 
         Scaffold(
-            topBar = {
-                when (selectedTab) {
-                    Tab.About     -> AboutTopBar()
-                    Tab.Apps      -> AppsTopBar()
-                    Tab.Libraries -> LibrariesTopBar()
-                }
-            },
             bottomBar = { BottomNav(selectedTab) { selectedTab = it } },
             containerColor = DarkBackground
         ) { padding ->
@@ -236,110 +226,6 @@ class MainScreen : ActivityScreen<AppScreens.Main>() {
         }
     }
 
-    // ── Top Bars ──────────────────────────────────────────────────────────────
-
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Composable
-    private fun AboutTopBar() = StyledTopBar(
-        avatarGradient = listOf(AccentGreen, AccentCyan),
-        title = "About",
-        subtitle = "Android & KMP Developer",
-        underlineColors = listOf(AccentGreen.copy(0.7f), AccentCyan.copy(0.4f), Color.Transparent)
-    )
-
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Composable
-    private fun AppsTopBar() = StyledTopBar(
-        avatarGradient = listOf(AccentCyan, Color(0xFF3DDC84)),
-        title = "Apps",
-        subtitle = "Published on Google Play",
-        underlineColors = listOf(AccentCyan.copy(0.7f), AccentGreen.copy(0.4f), Color.Transparent)
-    )
-
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Composable
-    private fun LibrariesTopBar() = StyledTopBar(
-        avatarGradient = listOf(AccentCyan, AccentPurple),
-        title = "Libraries",
-        subtitle = "Published on Maven Central",
-        underlineColors = listOf(AccentCyan.copy(0.7f), AccentPurple.copy(0.5f), Color.Transparent)
-    )
-
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Composable
-    private fun StyledTopBar(
-        avatarGradient: List<Color>,
-        title: String,
-        subtitle: String,
-        underlineColors: List<Color>
-    ) {
-        Column {
-            TopAppBar(
-                title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        // Avatar with glow ring and status dot
-                        Box(contentAlignment = Alignment.BottomEnd) {
-                            Box(
-                                Modifier
-                                    .size(40.dp)
-                                    .border(
-                                        1.5.dp,
-                                        Brush.linearGradient(avatarGradient.map { it.copy(0.35f) }),
-                                        RoundedCornerShape(12.dp)
-                                    )
-                                    .padding(2.dp)
-                                    .background(
-                                        Brush.linearGradient(avatarGradient),
-                                        RoundedCornerShape(10.dp)
-                                    ),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    "A",
-                                    color = Color.White,
-                                    fontWeight = FontWeight.ExtraBold,
-                                    fontSize = 18.sp
-                                )
-                            }
-                            // Green status dot
-                            Box(
-                                Modifier
-                                    .size(10.dp)
-                                    .offset(x = 1.dp, y = 1.dp)
-                                    .border(1.5.dp, DarkBackground, CircleShape)
-                                    .background(AccentGreen, CircleShape)
-                            )
-                        }
-                        Spacer(Modifier.width(12.dp))
-                        Column {
-                            Text(
-                                title,
-                                color = TextPrimary,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 18.sp,
-                                lineHeight = 22.sp
-                            )
-                            Text(
-                                subtitle,
-                                color = TextSecondary,
-                                fontSize = 11.sp,
-                                lineHeight = 14.sp
-                            )
-                        }
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = DarkBackground.copy(0.97f)
-                )
-            )
-            Box(
-                Modifier
-                    .fillMaxWidth()
-                    .height(2.dp)
-                    .background(Brush.horizontalGradient(underlineColors))
-            )
-        }
-    }
 
     // ── Libraries Tab ─────────────────────────────────────────────────────────
 
